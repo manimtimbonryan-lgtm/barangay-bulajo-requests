@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/portal.html" },
+    { "source": "/admin", "destination": "/admin.html" }
+  ]
+}
