@@ -196,6 +196,7 @@ tbody tr:hover{background:rgba(201,168,76,.05);}
     <div class="topbar-right">
       <span style="font-size:12px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace" id="last-refresh">—</span>
       <button class="topbar-btn" style="background:rgba(201,168,76,.2);color:var(--gold2)" onclick="loadRequests()">🔄 Refresh</button>
+      <button class="topbar-btn" style="background:rgba(255,255,255,.1)" onclick="openChangePassword()">🔑 Palitan Password</button>
       <button class="topbar-btn btn-logout" onclick="doLogout()">Sign Out</button>
     </div>
   </div>
@@ -385,13 +386,51 @@ tbody tr:hover{background:rgba(201,168,76,.05);}
   </div>
 </div>
 
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal-overlay" id="chpass-modal" style="display:none">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div>
+        <h2>🔑 Palitan ang Password</h2>
+        <p>Admin Panel Password</p>
+      </div>
+      <button class="modal-close" onclick="closeChangePassword()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:14px;padding:8px 0">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:var(--grey);display:block;margin-bottom:6px">KASALUKUYANG PASSWORD</label>
+          <input type="password" id="cp-old" placeholder="Ilagay ang lumang password"
+            style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;box-sizing:border-box">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:var(--grey);display:block;margin-bottom:6px">BAGONG PASSWORD</label>
+          <input type="password" id="cp-new" placeholder="Ilagay ang bagong password"
+            style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;box-sizing:border-box">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:var(--grey);display:block;margin-bottom:6px">KUMPIRMAHIN ANG BAGONG PASSWORD</label>
+          <input type="password" id="cp-confirm" placeholder="Ulitin ang bagong password"
+            style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;box-sizing:border-box">
+        </div>
+        <div id="cp-err" style="display:none;color:#ef4444;font-size:13px;font-weight:500;padding:8px 12px;background:#fef2f2;border-radius:8px"></div>
+        <div id="cp-ok"  style="display:none;color:#10b981;font-size:13px;font-weight:500;padding:8px 12px;background:#f0fdf4;border-radius:8px">✅ Matagumpay na nabago ang password! I-reload ang page para mag-apply.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="act-btn btn-reject" onclick="closeChangePassword()">Kanselahin</button>
+      <button class="act-btn btn-ready" onclick="doChangePassword()" style="background:var(--navy);color:#fff">💾 I-save ang Password</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
 // ═══════════ CONFIG ═══════════
-const ADMIN_PASSWORD = 'admin123'; // PALITAN ITO!
-const SUPABASE_URL   = 'https://atvmfddqvsawasqdbviq.supabase.co';
-const SUPABASE_KEY   = 'sb_publishable_JFOy2fAOr9aSx8D-quDzbw_fmFF9pNZ';
+const ADMIN_PASSWORD = 'bulajo2026admin'; // PALITAN ITO!
+const SUPABASE_URL   = 'https://jbpdvzqgermsdglmgggd.supabase.co';
+const SUPABASE_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImnicGR2enFnZXJtc2RnbG1nZ2dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzNDMwNzcsImV4cCI6MjA2MTkxOTA3N30.q9SbQshIDEz5a1a2uS5N_iNB0Wxp26hsqsB8BvCqSE4';
 
 let allRequests      = [];
 let filteredRequests = [];
@@ -401,11 +440,14 @@ let selectedNewStatus = null;
 // AUTO REFRESH every 60 seconds
 let refreshTimer;
 
+// Load saved password from localStorage if available
+let currentPassword = localStorage.getItem('bulajo_admin_pass') || ADMIN_PASSWORD;
+
 // ═══════════ LOGIN ═══════════
 function doLogin() {
   const pass = document.getElementById('login-pass').value;
   const err  = document.getElementById('login-err');
-  if (pass === ADMIN_PASSWORD) {
+  if (pass === currentPassword) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').classList.add('show');
     err.style.display = 'none';
@@ -424,6 +466,55 @@ function doLogout() {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('login-pass').value = '';
   }
+}
+
+// ═══════════ CHANGE PASSWORD ═══════════
+let currentPassword = ADMIN_PASSWORD;
+
+function openChangePassword() {
+  document.getElementById('cp-old').value = '';
+  document.getElementById('cp-new').value = '';
+  document.getElementById('cp-confirm').value = '';
+  document.getElementById('cp-err').style.display = 'none';
+  document.getElementById('cp-ok').style.display = 'none';
+  document.getElementById('chpass-modal').style.display = 'flex';
+}
+
+function closeChangePassword() {
+  document.getElementById('chpass-modal').style.display = 'none';
+}
+
+function doChangePassword() {
+  const oldPass  = document.getElementById('cp-old').value;
+  const newPass  = document.getElementById('cp-new').value;
+  const confirm  = document.getElementById('cp-confirm').value;
+  const errEl    = document.getElementById('cp-err');
+  const okEl     = document.getElementById('cp-ok');
+
+  errEl.style.display = 'none';
+  okEl.style.display  = 'none';
+
+  if (oldPass !== currentPassword) {
+    errEl.textContent = '❌ Mali ang kasalukuyang password.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (newPass.length < 6) {
+    errEl.textContent = '❌ Ang bagong password ay dapat hindi bababa sa 6 na character.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (newPass !== confirm) {
+    errEl.textContent = '❌ Hindi tugma ang bagong password at confirmation.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Save to localStorage so it persists across sessions
+  currentPassword = newPass;
+  localStorage.setItem('bulajo_admin_pass', newPass);
+  okEl.style.display = 'block';
+  showToast('Password na-update!', 'success');
 }
 
 // ═══════════ SUPABASE ═══════════
