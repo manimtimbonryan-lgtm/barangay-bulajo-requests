@@ -459,34 +459,29 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--cream); c
             <div>Ang bayad ay babayaran sa barangay kapag kinuha na ang certificate. <strong>Walang bayad online.</strong></div>
           </div>
           <div class="cert-grid">
-            <div class="cert-card" onclick="selectCert('BARANGAY CLEARANCE','150.00','📄')">
+            <div class="cert-card" onclick="selectCert('BARANGAY CLEARANCE','0','📄')">
               <div class="cert-icon">📄</div>
               <div class="cert-name">Barangay Clearance</div>
-              <div class="cert-fee">Bayad: <strong>PHP 150.00</strong></div>
               <div class="cert-check" id="check-BARANGAY CLEARANCE">✓</div>
             </div>
-            <div class="cert-card" onclick="selectCert('BARANGAY BUSINESS CLEARANCE','300.00','🏪')">
+            <div class="cert-card" onclick="selectCert('BARANGAY BUSINESS CLEARANCE','0','🏪')">
               <div class="cert-icon">🏪</div>
               <div class="cert-name">Business Clearance</div>
-              <div class="cert-fee">Bayad: <strong>PHP 300.00</strong></div>
               <div class="cert-check" id="check-BARANGAY BUSINESS CLEARANCE">✓</div>
             </div>
-            <div class="cert-card" onclick="selectCert('CERTIFICATE OF RESIDENCY','50.00','🏠')">
+            <div class="cert-card" onclick="selectCert('CERTIFICATE OF RESIDENCY','0','🏠')">
               <div class="cert-icon">🏠</div>
               <div class="cert-name">Certificate of Residency</div>
-              <div class="cert-fee">Bayad: <strong>PHP 50.00</strong></div>
               <div class="cert-check" id="check-CERTIFICATE OF RESIDENCY">✓</div>
             </div>
-            <div class="cert-card" onclick="selectCert('CERTIFICATE OF INDIGENCY','0.00','💙')">
+            <div class="cert-card" onclick="selectCert('CERTIFICATE OF INDIGENCY','0','💙')">
               <div class="cert-icon">💙</div>
               <div class="cert-name">Certificate of Indigency</div>
-              <div class="cert-fee">Bayad: <strong>LIBRE</strong></div>
               <div class="cert-check" id="check-CERTIFICATE OF INDIGENCY">✓</div>
             </div>
-            <div class="cert-card" onclick="selectCert('FIRST TIME JOB SEEKER (FTJS)','0.00','💼')">
+            <div class="cert-card" onclick="selectCert('FIRST TIME JOB SEEKER (FTJS)','0','💼')">
               <div class="cert-icon">💼</div>
               <div class="cert-name">First Time Job Seeker</div>
-              <div class="cert-fee">Bayad: <strong>LIBRE</strong></div>
               <div class="cert-check" id="check-FIRST TIME JOB SEEKER (FTJS)">✓</div>
             </div>
           </div>
@@ -560,26 +555,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--cream); c
           </div>
 
           <!-- CEDULA FIELDS — shown for clearance types -->
-          <div id="cedula-section" style="display:none">
-            <hr style="border:none;border-top:1px solid var(--light);margin:20px 0">
-            <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px">📋 Cedula / Community Tax Certificate</p>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Cedula Number</label>
-                <input type="text" id="f-cedula" placeholder="CTC Number">
-              </div>
-              <div class="form-group">
-                <label>Petsa ng Cedula</label>
-                <input type="date" id="f-cedula-date">
-              </div>
-            </div>
-            <div class="form-row full">
-              <div class="form-group">
-                <label>Lugar ng Pagkuha ng Cedula</label>
-                <input type="text" id="f-cedula-place" placeholder="Hal. Cavinti, Laguna" oninput="this.value=this.value.toUpperCase()">
-              </div>
-            </div>
-          </div>
+
 
           <div class="btn-actions">
             <button class="btn btn-outline" onclick="goToStep1()">← Bumalik</button>
@@ -604,8 +580,8 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--cream); c
               <div style="font-size:18px;font-weight:700;margin-top:4px" id="rev-cert-name">—</div>
             </div>
             <div style="text-align:right">
-              <div class="fee-label">Babayaran sa Barangay</div>
-              <div class="fee-amount" id="rev-fee">—</div>
+              <div class="fee-label">Bayad</div>
+              <div class="fee-amount" style="font-size:16px;color:var(--grey)">Itatakda ng Barangay</div>
             </div>
           </div>
 
@@ -638,7 +614,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--cream); c
 
           <div class="notice notice-warning">
             <span class="notice-icon">⚠️</span>
-            <div>Ang bayad ay <strong>babayaran sa barangay</strong> kapag kinuha na ang certificate. Hindi accepted ang online payment.</div>
+            <div>Ang <strong>bayad at cedula</strong> ay itatakda at ilalagay ng barangay staff. Magdala ng valid ID kapag pumunta sa barangay.</div>
           </div>
 
           <div class="btn-actions">
@@ -720,6 +696,10 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--cream); c
               <span class="s-value" id="disp-date">—</span>
             </div>
             <div class="summary-row">
+              <span class="s-label">Bayad</span>
+              <span class="s-value" id="disp-fee">—</span>
+            </div>
+            <div class="summary-row">
               <span class="s-label">Remarks</span>
               <span class="s-value" id="disp-remarks">—</span>
             </div>
@@ -773,8 +753,7 @@ function selectCert(name, fee, icon) {
   selectedFee  = fee;
 
   // Show cedula fields for certain cert types
-  const needsCedula = ['BARANGAY CLEARANCE','BARANGAY BUSINESS CLEARANCE','CERTIFICATE OF RESIDENCY'].includes(name);
-  document.getElementById('cedula-section').style.display = needsCedula ? 'block' : 'none';
+  // cedula entered at barangay
 }
 
 // ═══════════ STEPS ═══════════
@@ -823,7 +802,7 @@ function goToStep3() {
 
   // Fill review
   document.getElementById('rev-cert-name').textContent = selectedCert;
-  document.getElementById('rev-fee').textContent       = parseFloat(selectedFee) > 0 ? `PHP ${parseFloat(selectedFee).toFixed(2)}` : 'LIBRE';
+  // fee set by barangay - not shown to resident
   document.getElementById('rev-name').textContent      = name;
   document.getElementById('rev-age-gender').textContent = `${age} taong gulang, ${gender}`;
   document.getElementById('rev-civil').textContent     = civil;
@@ -885,7 +864,7 @@ async function submitRequest() {
   const data = {
     reference_number: refNum,
     cert_type:        selectedCert,
-    fee:              parseFloat(selectedFee),
+    fee:              0,
     full_name:        document.getElementById('f-name').value.trim(),
     age:              parseInt(document.getElementById('f-age').value),
     gender:           document.getElementById('f-gender').value,
@@ -951,6 +930,8 @@ function displayStatus(r) {
   document.getElementById('disp-name').textContent   = r.full_name;
   document.getElementById('disp-cert').textContent   = r.cert_type;
   document.getElementById('disp-date').textContent   = fmtDate(r.requested_at);
+  const feeVal = parseFloat(r.fee || 0);
+  document.getElementById('disp-fee').textContent = feeVal > 0 ? `PHP ${feeVal.toFixed(2)}` : 'Itatakda ng Barangay';
   document.getElementById('disp-remarks').textContent = r.remarks || '(Wala pang remarks)';
 
   const badges = {
