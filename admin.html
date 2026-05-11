@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Barangay Bulajo — Admin: Online Requests</title>
+<title>Barangay Bulajo — Admin Panel</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
   --navy:#0f1f3d; --navy2:#162847;
@@ -16,6 +17,9 @@
   --purple:#6a1b9a; --card:#ffffff;
   --shadow:0 4px 24px rgba(15,31,61,0.10);
   --radius:14px;
+  --bg:#F0F4FA;
+  --border:rgba(15,31,61,.08);
+  --text:#1e293b;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--navy);min-height:100vh;}
@@ -43,127 +47,164 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--navy);m
 .topbar-seal{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:16px;}
 .topbar-title{font-family:'DM Serif Display',serif;font-size:17px;color:#fff;line-height:1.1;}
 .topbar-title span{display:block;font-family:'Outfit',sans-serif;font-size:11px;font-weight:400;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;}
-.topbar-right{display:flex;align-items:center;gap:12px;}
-.notification-badge{position:relative;cursor:pointer;}
-.notif-count{position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:var(--red);border-radius:50%;font-size:10px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;}
-.topbar-btn{padding:7px 16px;border-radius:7px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-btn{padding:7px 14px;border-radius:7px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
 .btn-logout{background:rgba(192,57,43,.25);color:#ff9999;}
+#clock-lbl{font-size:12px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace;}
 
-/* STATS */
-.stats-bar{background:var(--navy2);padding:16px 28px;display:flex;gap:32px;flex-wrap:wrap;}
-.stat-item{display:flex;align-items:center;gap:10px;}
-.stat-num{font-family:'DM Serif Display',serif;font-size:28px;color:var(--gold2);}
-.stat-lbl{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;line-height:1.3;}
+/* TABS */
+.tab-bar{background:var(--navy2);display:flex;padding:0 28px;border-bottom:2px solid rgba(255,255,255,.06);}
+.tab-btn{padding:13px 22px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;color:rgba(255,255,255,.45);cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;}
+.tab-btn:hover{color:rgba(255,255,255,.75);}
+.tab-btn.active{color:var(--gold2);border-bottom-color:var(--gold);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
 
-/* MAIN */
-.content{padding:24px 28px;max-width:1600px;margin:0 auto;}
-
-/* TOOLBAR */
-.toolbar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
-.search-input{flex:1;min-width:200px;padding:10px 14px;border:1.5px solid var(--light);border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;color:var(--navy);transition:border-color .2s;background:var(--white);}
+/* ─── ADMIN TAB ─── */
+.stats-bar{background:var(--navy);display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,.06);}
+.stat-item{flex:1;padding:14px 20px;border-right:1px solid rgba(255,255,255,.06);text-align:center;}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-family:'DM Serif Display',serif;font-size:28px;color:#fff;line-height:1;}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;}
+.content{padding:24px 28px;}
+.toolbar{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+.search-input{flex:1;min-width:220px;padding:10px 14px;border:1.5px solid var(--light);border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;background:#fff;}
 .search-input:focus{border-color:var(--navy);}
-.filter-select{padding:10px 14px;border:1.5px solid var(--light);border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;color:var(--navy);background:var(--white);cursor:pointer;}
-.refresh-btn{padding:10px 16px;background:var(--light);color:var(--navy);border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;}
-
-/* TABLE */
-.table-wrap{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(15,31,61,.06);overflow:hidden;}
+.filter-select{padding:10px 12px;border:1.5px solid var(--light);border-radius:9px;font-family:'Outfit',sans-serif;font-size:13px;background:#fff;outline:none;cursor:pointer;}
+.refresh-btn{padding:10px 18px;background:var(--navy);color:#fff;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.table-wrap{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(15,31,61,.06);overflow:hidden;}
 .data-table-scroll{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:13.5px;}
-thead tr{background:var(--navy);color:#fff;}
-th{padding:12px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
-td{padding:11px 16px;border-bottom:1px solid var(--light);vertical-align:middle;}
-tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover{background:rgba(201,168,76,.05);}
-
-/* STATUS BADGES */
-.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:50px;font-size:11px;font-weight:700;letter-spacing:.03em;white-space:nowrap;}
-.b-pending{background:#fff3e0;color:#8c4500;}
-.b-processing{background:#e8f0fe;color:#1a3a8c;}
-.b-ready{background:#e6f4ea;color:#1a6b45;}
-.b-released{background:#f3e5f5;color:#6a1b9a;}
-.b-rejected{background:#fde8e8;color:var(--red);}
-
-/* ACTIONS */
-.action-btns{display:flex;gap:6px;flex-wrap:wrap;}
-.act-btn{padding:5px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Outfit',sans-serif;white-space:nowrap;transition:opacity .2s;}
-.act-btn:hover{opacity:.8;}
-.btn-view{background:var(--light);color:var(--navy);}
-.btn-process{background:#e8f0fe;color:#1a3a8c;}
-.btn-ready{background:#e6f4ea;color:#1a6b45;}
-.btn-release{background:#f3e5f5;color:#6a1b9a;}
-.btn-reject{background:#fde8e8;color:var(--red);}
-.btn-print{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
-.modal-overlay.show{display:flex;}
-.modal{background:var(--white);border-radius:var(--radius);width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);}
-.modal-header{background:var(--navy);padding:20px 24px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;}
-.modal-header h2{font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;}
-.modal-header p{font-size:12px;color:rgba(255,255,255,.5);margin-top:3px;}
-.modal-close{background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;padding:0;line-height:1;}
-.modal-close:hover{color:#fff;}
-.modal-body{padding:24px;}
-.modal-footer{padding:16px 24px;border-top:1px solid var(--light);display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
-
-/* DETAIL GRID */
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
-@media(max-width:560px){.detail-grid{grid-template-columns:1fr;}}
-.detail-item label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grey);margin-bottom:4px;}
-.detail-item .val{font-size:14px;font-weight:600;color:var(--navy);}
-.detail-item.full{grid-column:1/-1;}
-
-/* STATUS UPDATE */
-.status-update{background:rgba(15,31,61,.04);border:1.5px solid var(--light);border-radius:10px;padding:18px;margin-top:16px;}
-.status-update h3{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--navy);}
-.status-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
-.s-btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid transparent;font-family:'Outfit',sans-serif;transition:all .15s;}
-.s-btn.sel{border-color:var(--navy);box-shadow:0 0 0 2px rgba(15,31,61,.15);}
-.remarks-input{width:100%;padding:10px 14px;border:1.5px solid var(--light);border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;color:var(--navy);resize:vertical;min-height:70px;}
-.remarks-input:focus{border-color:var(--navy);}
-
-/* PRINT AREA */
-@media print {
-  body > *:not(#print-area) { display: none !important; }
-  #print-area { display: block !important; }
-  .print-doc { page-break-after: always; }
-}
-#print-area { display: none; }
-
-.print-doc {
-  font-family: Arial, sans-serif;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px;
-  border: 2px solid #000;
-}
-.print-header { text-align: center; border-bottom: 3px double #000; padding-bottom: 16px; margin-bottom: 20px; }
-.print-header h1 { font-size: 16px; font-weight: bold; margin: 4px 0; }
-.print-header h2 { font-size: 14px; font-weight: bold; margin: 4px 0; }
-.print-title { font-size: 18px; font-weight: bold; text-align: center; margin: 20px 0; text-decoration: underline; text-transform: uppercase; }
-.print-body { margin: 20px 0; font-size: 14px; line-height: 2; }
-.print-body table { width: 100%; border-collapse: collapse; }
-.print-body td { padding: 4px 8px; vertical-align: top; }
-.print-body .lbl { font-weight: bold; width: 35%; }
-.print-body .val { border-bottom: 1px solid #333; }
-.print-footer { margin-top: 40px; display: flex; justify-content: space-between; }
-.print-sig { text-align: center; width: 45%; }
-.print-sig .line { border-top: 1px solid #000; margin-top: 50px; padding-top: 4px; font-size: 13px; }
-.print-ref { font-size: 11px; color: #666; margin-top: 20px; text-align: right; }
-
-/* TOAST */
-#toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:13px 20px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.25);transform:translateY(80px);opacity:0;transition:all .3s;z-index:9999;}
-#toast.show{transform:translateY(0);opacity:1;}
-#toast.success{background:var(--green);}
-#toast.error{background:var(--red);}
-
-/* LOADING */
-.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--light);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
+thead th{background:var(--navy);color:rgba(255,255,255,.7);padding:12px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--light);transition:background .15s;}
+tbody tr:hover{background:#f8f6f0;}
+tbody tr:last-child{border-bottom:none;}
+td{padding:13px 14px;vertical-align:middle;}
+.badge{display:inline-block;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.04em;}
+.b-pending{background:#fff8d6;color:#8a6500;}
+.b-processing{background:#dbeafe;color:#1a5db5;}
+.b-ready{background:#d4edda;color:#1a5e2e;}
+.b-released{background:#ede7f6;color:#5a1e91;}
+.b-rejected{background:#fde8e8;color:#a61c1c;}
+.new-dot{display:inline-block;width:7px;height:7px;background:#e8c96a;border-radius:50%;margin-left:5px;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.action-btns{display:flex;gap:6px;}
+.act-btn{padding:5px 11px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Outfit',sans-serif;}
+.btn-view{background:rgba(15,31,61,.08);color:var(--navy);}
+.btn-print{background:rgba(26,93,181,.1);color:var(--blue);}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--light);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* NEW BADGE */
-.new-dot{width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block;margin-left:4px;animation:pulse 1.5s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,20,40,.6);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;backdrop-filter:blur(4px);}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;border-radius:18px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.25);}
+.modal-header{background:var(--navy);color:#fff;padding:20px 24px;border-radius:18px 18px 0 0;display:flex;align-items:flex-start;justify-content:space-between;}
+.modal-header h2{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:3px;}
+.modal-header p{font-size:12px;color:rgba(255,255,255,.5);font-family:'DM Mono',monospace;}
+.modal-close{background:rgba(255,255,255,.1);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:24px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin-bottom:20px;}
+.detail-item label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--grey);display:block;margin-bottom:3px;}
+.detail-item span{font-size:14px;color:var(--navy);font-weight:500;}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--grey);padding:12px 0 6px;border-top:1px solid var(--light);margin-top:4px;}
+.status-btns{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px;}
+.s-btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid transparent;font-family:'Outfit',sans-serif;opacity:.65;transition:all .2s;}
+.s-btn.sel{opacity:1;border-color:currentColor;}
+.s-btn.pending{background:#fff8d6;color:#8a6500;}
+.s-btn.processing{background:#dbeafe;color:#1a5db5;}
+.s-btn.ready{background:#d4edda;color:#1a5e2e;}
+.s-btn.released{background:#ede7f6;color:#5a1e91;}
+.s-btn.rejected{background:#fde8e8;color:#a61c1c;}
+.remarks-box{width:100%;padding:10px 14px;border:1.5px solid var(--light);border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;resize:vertical;min-height:70px;outline:none;}
+.remarks-box:focus{border-color:var(--navy);}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--light);display:flex;justify-content:flex-end;gap:10px;}
+.btn-cancel{padding:10px 20px;background:var(--light);color:var(--navy);border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-save{padding:10px 20px;background:var(--navy);color:#fff;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-ready{background:#d4edda;color:#1a5e2e;border:none;padding:10px 20px;border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-reject{background:#fde8e8;color:#a61c1c;border:none;padding:10px 20px;border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+
+/* TOAST */
+#toast{position:fixed;bottom:28px;right:28px;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;background:var(--navy);color:#fff;z-index:999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;}
+#toast.show{opacity:1;transform:translateY(0);}
+#toast.success{background:#1a5e2e;}
+#toast.error{background:#a61c1c;}
+
+/* PRINT */
+@media print {
+  .topbar,.tab-bar,.stats-bar,.toolbar,.action-btns,.modal-footer,#toast,.tab-btn{display:none!important;}
+  .print-body{display:block!important;}
+}
+.print-body{display:none;}
+.print-body table{width:100%;border-collapse:collapse;}
+.print-body td,.print-body th{border:1px solid #ccc;padding:6px 10px;font-size:12px;}
+
+/* ─── DASHBOARD TAB ─── */
+.dash-main{padding:24px 28px;background:var(--bg);min-height:calc(100vh - 110px);}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px;}
+.stat-card{background:#fff;border-radius:12px;padding:20px 18px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(15,31,61,.06);position:relative;overflow:hidden;transition:transform .2s;}
+.stat-card:hover{transform:translateY(-2px);}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.sc-total::before{background:var(--navy);}
+.sc-pending::before{background:#f59e0b;}
+.sc-processing::before{background:#3b82f6;}
+.sc-ready::before{background:#10b981;}
+.sc-released::before{background:#8b5cf6;}
+.sc-rejected::before{background:#ef4444;}
+.sc-household::before{background:#0ea5e9;}
+.sc-residents::before{background:#06b6d4;}
+.sc-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px;}
+.sc-num{font-family:'DM Serif Display',serif;font-size:32px;font-weight:800;line-height:1;margin-bottom:3px;}
+.sc-label{font-size:12px;color:var(--grey);font-weight:500;}
+.dash-grid2{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px;}
+.dash-grid3{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.panel{background:#fff;border-radius:12px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(15,31,61,.06);overflow:hidden;}
+.panel-hdr{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.panel-title{font-size:14px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:7px;}
+.panel-body{padding:18px;}
+.chart-wrap{position:relative;height:200px;}
+.cert-bar-item{margin-bottom:10px;}
+.cert-bar-lbl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;}
+.cert-bar-track{height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;}
+.cert-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--navy),#3b82f6);transition:width 1s ease;}
+.recent-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+.recent-tbl th{text-align:left;padding:9px 12px;background:#f8fafc;color:var(--grey);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.recent-tbl td{padding:10px 12px;border-bottom:1px solid var(--border);}
+.recent-tbl tr:last-child td{border-bottom:none;}
+.recent-tbl tr:hover td{background:#fafafa;}
+.dbadge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;}
+.dbadge.PENDING{background:#fef3c7;color:#92400e;}
+.dbadge.PROCESSING{background:#dbeafe;color:#1e40af;}
+.dbadge.READY{background:#d1fae5;color:#065f46;}
+.dbadge.RELEASED{background:#ede9fe;color:#5b21b6;}
+.dbadge.REJECTED{background:#fee2e2;color:#991b1b;}
+.official-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.official-item:last-child{border-bottom:none;}
+.official-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy2));display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:13px;font-weight:700;flex-shrink:0;}
+.official-name{font-weight:600;font-size:13px;}
+.official-pos{font-size:11px;color:var(--grey);}
+.ann-form{display:flex;gap:8px;margin-bottom:14px;}
+.ann-input{flex:1;padding:9px 13px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Outfit',sans-serif;outline:none;}
+.ann-input:focus{border-color:var(--navy);}
+.ann-add-btn{background:var(--navy);color:#fff;border:none;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.ann-item{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border-radius:8px;background:#f8fafc;margin-bottom:7px;border-left:3px solid var(--gold);}
+.ann-text{flex:1;font-size:13px;line-height:1.5;}
+.ann-date{font-size:10px;color:var(--grey);margin-top:2px;}
+.ann-del{background:none;border:none;color:var(--grey);cursor:pointer;font-size:16px;flex-shrink:0;}
+.ann-del:hover{color:#ef4444;}
+.empty-state{text-align:center;color:var(--grey);font-size:13px;padding:20px;}
+.export-btn{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#059669;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;}
+
+/* CHANGE PASSWORD MODAL */
+.cpmodal{position:fixed;inset:0;background:rgba(10,20,40,.6);display:none;align-items:center;justify-content:center;z-index:300;}
+.cpmodal.show{display:flex;}
+.cpbox{background:#fff;border-radius:18px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.25);}
+
+@media(max-width:800px){
+  .dash-grid2,.dash-grid3{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .content,.dash-main{padding:16px;}
+}
 </style>
 </head>
 <body>
@@ -173,7 +214,7 @@ tbody tr:hover{background:rgba(201,168,76,.05);}
   <div class="login-box">
     <div class="login-seal">🏛️</div>
     <div class="login-title">Barangay Bulajo</div>
-    <div class="login-sub">Admin Panel — Online Requests</div>
+    <div class="login-sub">Admin Panel — Cavinti, Laguna</div>
     <div class="login-field">
       <label>Password</label>
       <input type="password" id="login-pass" placeholder="Admin password" onkeydown="if(event.key==='Enter')doLogin()">
@@ -185,276 +226,361 @@ tbody tr:hover{background:rgba(201,168,76,.05);}
 
 <!-- APP -->
 <div id="app">
+
+  <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-left">
       <div class="topbar-seal">🏛️</div>
       <div class="topbar-title">
-        Admin Panel
-        <span>Online Certificate Requests</span>
+        Barangay Bulajo
+        <span>Admin Panel · Cavinti, Laguna</span>
       </div>
     </div>
     <div class="topbar-right">
-      <span style="font-size:12px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace" id="last-refresh">—</span>
-      <button class="topbar-btn" style="background:rgba(201,168,76,.2);color:var(--gold2)" onclick="loadRequests()">🔄 Refresh</button>
-      <button class="topbar-btn" style="background:rgba(255,255,255,.1)" onclick="openChangePassword()">🔑 Palitan Password</button>
+      <span id="clock-lbl"></span>
+      <button class="topbar-btn" style="background:rgba(201,168,76,.2);color:var(--gold2)" onclick="refreshCurrent()">🔄 Refresh</button>
+      <button class="topbar-btn" style="background:rgba(255,255,255,.1)" onclick="openChangePassword()">🔑 Password</button>
       <button class="topbar-btn btn-logout" onclick="doLogout()">Sign Out</button>
     </div>
   </div>
 
-  <div class="stats-bar" id="stats-bar">
-    <div class="stat-item">
-      <div class="stat-num" id="st-total">—</div>
-      <div class="stat-lbl">Lahat ng<br>Requests</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num" id="st-pending" style="color:#f5c842">—</div>
-      <div class="stat-lbl">Pending<br>(Bagong Request)</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num" id="st-processing" style="color:#6cb4f5">—</div>
-      <div class="stat-lbl">Pinoproseso</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num" id="st-ready" style="color:#7fd4a0">—</div>
-      <div class="stat-lbl">Ready para<br>kunin</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num" id="st-released" style="color:#c7a0e8">—</div>
-      <div class="stat-lbl">Naibigay<br>na</div>
-    </div>
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('requests')" id="tab-requests">📋 Online Requests</button>
+    <button class="tab-btn" onclick="switchTab('dashboard')" id="tab-dashboard">📊 Dashboard</button>
   </div>
 
-  <div class="content">
-    <div class="toolbar">
-      <input class="search-input" id="search" placeholder="🔍 Hanapin sa pangalan, reference, o certificate..." oninput="filterTable()">
-      <select class="filter-select" id="filter-status" onchange="filterTable()">
-        <option value="">Lahat ng Status</option>
-        <option value="PENDING">⏳ Pending</option>
-        <option value="PROCESSING">🔄 Pinoproseso</option>
-        <option value="READY">✅ Ready</option>
-        <option value="RELEASED">🎉 Naibigay</option>
-        <option value="REJECTED">❌ Rejected</option>
-      </select>
-      <select class="filter-select" id="filter-cert" onchange="filterTable()">
-        <option value="">Lahat ng Cert</option>
-      </select>
-      <button class="refresh-btn" onclick="loadRequests()">🔄 Refresh</button>
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- TAB 1: ONLINE REQUESTS                            -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="panel-requests">
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat-item">
+        <div class="stat-num" id="st-total">—</div>
+        <div class="stat-lbl">Lahat</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="st-pending" style="color:#f5c842">—</div>
+        <div class="stat-lbl">Pending</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="st-processing" style="color:#6cb4f5">—</div>
+        <div class="stat-lbl">Processing</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="st-ready" style="color:#7fd4a0">—</div>
+        <div class="stat-lbl">Ready</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="st-released" style="color:#c7a0e8">—</div>
+        <div class="stat-lbl">Naibigay</div>
+      </div>
     </div>
 
-    <div class="table-wrap">
-      <div class="data-table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Ref. No.</th>
-              <th>Pangalan</th>
-              <th>Certificate</th>
-              <th>Contact</th>
-              <th>Bayad</th>
-              <th>Status</th>
-              <th>Petsa ng Request</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="req-tbody">
-            <tr><td colspan="8" style="text-align:center;padding:60px;color:var(--grey)"><span class="spinner"></span>Loading...</td></tr>
-          </tbody>
-        </table>
+    <div class="content">
+      <div class="toolbar">
+        <input class="search-input" id="search" placeholder="🔍 Hanapin..." oninput="filterTable()">
+        <select class="filter-select" id="filter-status" onchange="filterTable()">
+          <option value="">Lahat ng Status</option>
+          <option value="PENDING">⏳ Pending</option>
+          <option value="PROCESSING">🔄 Processing</option>
+          <option value="READY">✅ Ready</option>
+          <option value="RELEASED">🎉 Naibigay</option>
+          <option value="REJECTED">❌ Rejected</option>
+        </select>
+        <select class="filter-select" id="filter-cert" onchange="filterTable()">
+          <option value="">Lahat ng Cert</option>
+        </select>
+        <button class="refresh-btn" onclick="loadRequests()">🔄 Refresh</button>
+        <span style="font-size:12px;color:var(--grey);align-self:center" id="last-refresh"></span>
+      </div>
+      <div class="table-wrap">
+        <div class="data-table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Ref. No.</th>
+                <th>Pangalan</th>
+                <th>Certificate</th>
+                <th>Contact</th>
+                <th>Bayad</th>
+                <th>Status</th>
+                <th>Petsa</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="req-tbody">
+              <tr><td colspan="8" style="text-align:center;padding:60px;color:var(--grey)"><span class="spinner"></span>Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- TAB 2: DASHBOARD                                  -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-dashboard">
+    <div class="dash-main">
+
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card sc-total">
+          <div class="sc-icon" style="background:rgba(15,31,61,.08)">📋</div>
+          <div class="sc-num" id="d-total">—</div>
+          <div class="sc-label">Lahat ng Requests</div>
+        </div>
+        <div class="stat-card sc-pending">
+          <div class="sc-icon" style="background:rgba(245,158,11,.1)">⏳</div>
+          <div class="sc-num" id="d-pending">—</div>
+          <div class="sc-label">Pending</div>
+        </div>
+        <div class="stat-card sc-processing">
+          <div class="sc-icon" style="background:rgba(59,130,246,.1)">⚙️</div>
+          <div class="sc-num" id="d-processing">—</div>
+          <div class="sc-label">Processing</div>
+        </div>
+        <div class="stat-card sc-ready">
+          <div class="sc-icon" style="background:rgba(16,185,129,.1)">✅</div>
+          <div class="sc-num" id="d-ready">—</div>
+          <div class="sc-label">Ready</div>
+        </div>
+        <div class="stat-card sc-released">
+          <div class="sc-icon" style="background:rgba(139,92,246,.1)">🎉</div>
+          <div class="sc-num" id="d-released">—</div>
+          <div class="sc-label">Released</div>
+        </div>
+        <div class="stat-card sc-rejected">
+          <div class="sc-icon" style="background:rgba(239,68,68,.1)">❌</div>
+          <div class="sc-num" id="d-rejected">—</div>
+          <div class="sc-label">Rejected</div>
+        </div>
+        <div class="stat-card sc-household">
+          <div class="sc-icon" style="background:rgba(14,165,233,.1)">🏠</div>
+          <div class="sc-num" id="d-households">—</div>
+          <div class="sc-label">Total Households</div>
+        </div>
+        <div class="stat-card sc-residents">
+          <div class="sc-icon" style="background:rgba(6,182,212,.1)">👤</div>
+          <div class="sc-num" id="d-residents">—</div>
+          <div class="sc-label">Total Residents</div>
+        </div>
+      </div>
+
+      <!-- Chart + Cert Bars -->
+      <div class="dash-grid2">
+        <div class="panel">
+          <div class="panel-hdr">
+            <div class="panel-title">📈 Requests per Month</div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-wrap"><canvas id="monthly-chart"></canvas></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hdr">
+            <div class="panel-title">📊 Uri ng Certificate</div>
+          </div>
+          <div class="panel-body" id="cert-bars">
+            <div class="empty-state"><span class="spinner"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent + Officials -->
+      <div class="dash-grid3">
+        <div class="panel">
+          <div class="panel-hdr">
+            <div class="panel-title">📋 Pinakabagong Requests</div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="recent-tbl">
+              <thead>
+                <tr>
+                  <th>Reference</th>
+                  <th>Pangalan</th>
+                  <th>Certificate</th>
+                  <th>Status</th>
+                  <th>Petsa</th>
+                </tr>
+              </thead>
+              <tbody id="recent-tbody">
+                <tr><td colspan="5" class="empty-state"><span class="spinner"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hdr">
+            <div class="panel-title">👥 Mga Opisyal</div>
+          </div>
+          <div class="panel-body" id="officials-list">
+            <div class="empty-state"><span class="spinner"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Announcements -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title">📢 Mga Anunsyo</div>
+          <button class="export-btn" onclick="exportReport()">📥 I-export CSV</button>
+        </div>
+        <div class="panel-body">
+          <div class="ann-form">
+            <input class="ann-input" id="ann-input" placeholder="Mag-type ng bagong anunsyo..."
+                   onkeydown="if(event.key==='Enter') addAnn()">
+            <button class="ann-add-btn" onclick="addAnn()">+ I-post</button>
+          </div>
+          <div id="ann-list"></div>
+        </div>
+      </div>
+
+    </div><!-- /dash-main -->
+  </div><!-- /panel-dashboard -->
+
+</div><!-- /app -->
 
 <!-- DETAIL MODAL -->
 <div class="modal-overlay" id="detail-modal">
   <div class="modal">
     <div class="modal-header">
       <div>
-        <h2 id="modal-title">Request Details</h2>
+        <h2 id="modal-title">—</h2>
         <p id="modal-refnum">—</p>
       </div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
       <div class="detail-grid">
-        <div class="detail-item">
-          <label>Buong Pangalan</label>
-          <div class="val" id="d-name">—</div>
-        </div>
-        <div class="detail-item">
-          <label>Certificate na Hinihingi</label>
-          <div class="val" id="d-cert">—</div>
-        </div>
-        <div class="detail-item">
-          <label>Edad / Kasarian</label>
-          <div class="val" id="d-age-gender">—</div>
-        </div>
-        <div class="detail-item">
-          <label>Civil Status</label>
-          <div class="val" id="d-civil">—</div>
-        </div>
-        <div class="detail-item full">
-          <label>Address</label>
-          <div class="val" id="d-address">—</div>
-        </div>
-        <div class="detail-item">
-          <label>Contact Number</label>
-          <div class="val" id="d-contact">—</div>
-        </div>
-        <div class="detail-item">
-          <label>Household Number</label>
-          <div class="val" id="d-household">—</div>
-        </div>
-        <div class="detail-item full">
-          <label>Purpose</label>
-          <div class="val" id="d-purpose">—</div>
-        </div>
-        <div class="detail-item">
-          <label>Cedula Number</label>
-          <div class="val" id="d-cedula">—</div>
-        </div>
-        <div class="detail-item">
-          <label>Cedula Date / Place</label>
-          <div class="val" id="d-cedula-dp">—</div>
-        </div>
-        <div class="detail-item">
-          <label>Bayad</label>
-          <div class="val" id="d-fee">—</div>
-        </div>
-        <div class="detail-item">
-          <label>Petsa ng Request</label>
-          <div class="val" id="d-date">—</div>
-        </div>
+        <div class="detail-item"><label>Buong Pangalan</label><span id="d-name">—</span></div>
+        <div class="detail-item"><label>Certificate</label><span id="d-cert">—</span></div>
+        <div class="detail-item"><label>Edad / Kasarian</label><span id="d-age-gender">—</span></div>
+        <div class="detail-item"><label>Civil Status</label><span id="d-civil">—</span></div>
+        <div class="detail-item" style="grid-column:1/-1"><label>Address</label><span id="d-address">—</span></div>
+        <div class="detail-item"><label>Contact</label><span id="d-contact">—</span></div>
+        <div class="detail-item"><label>Household No.</label><span id="d-household">—</span></div>
+        <div class="detail-item" style="grid-column:1/-1"><label>Layunin</label><span id="d-purpose">—</span></div>
+        <div class="detail-item"><label>Cedula No.</label><span id="d-cedula">—</span></div>
+        <div class="detail-item"><label>Petsa / Lugar ng Cedula</label><span id="d-cedula-dp">—</span></div>
+        <div class="detail-item"><label>Bayad</label><span id="d-fee">—</span></div>
+        <div class="detail-item"><label>Petsa ng Request</label><span id="d-date">—</span></div>
       </div>
-
-      <!-- STATUS UPDATE -->
-      <div class="status-update">
-        <h3>🔄 I-update ang Status</h3>
-        <div class="status-btns">
-          <button class="s-btn b-pending"    onclick="selectStatus('PENDING')"    id="sb-PENDING">⏳ Pending</button>
-          <button class="s-btn b-processing" onclick="selectStatus('PROCESSING')" id="sb-PROCESSING">🔄 Pinoproseso</button>
-          <button class="s-btn b-ready"      onclick="selectStatus('READY')"      id="sb-READY">✅ Ready</button>
-          <button class="s-btn b-released"   onclick="selectStatus('RELEASED')"  id="sb-RELEASED">🎉 Naibigay</button>
-          <button class="s-btn b-rejected"   onclick="selectStatus('REJECTED')"  id="sb-REJECTED">❌ Reject</button>
-        </div>
-        <textarea class="remarks-input" id="remarks-input" placeholder="Remarks o mensahe para sa residente (opsyonal)..."></textarea>
+      <div class="section-title">I-update ang Status</div>
+      <div class="status-btns">
+        <button class="s-btn pending"    id="sb-PENDING"    onclick="selectStatus('PENDING')">⏳ Pending</button>
+        <button class="s-btn processing" id="sb-PROCESSING" onclick="selectStatus('PROCESSING')">🔄 Processing</button>
+        <button class="s-btn ready"      id="sb-READY"      onclick="selectStatus('READY')">✅ Ready</button>
+        <button class="s-btn released"   id="sb-RELEASED"   onclick="selectStatus('RELEASED')">🎉 Naibigay</button>
+        <button class="s-btn rejected"   id="sb-REJECTED"   onclick="selectStatus('REJECTED')">❌ Rejected</button>
       </div>
+      <div class="section-title">Remarks</div>
+      <textarea class="remarks-box" id="remarks-input" placeholder="Lagyan ng remarks (opsyonal)..."></textarea>
     </div>
     <div class="modal-footer">
-      <button class="act-btn btn-print" onclick="printRequest()" style="padding:10px 20px;font-size:13px">🖨️ I-print ang Request Slip</button>
-      <button class="act-btn btn-reject" onclick="closeModal()" style="padding:10px 20px;font-size:13px">Isara</button>
-      <button class="act-btn btn-ready" onclick="saveStatus()" style="padding:10px 20px;font-size:13px;background:var(--navy);color:#fff">💾 I-save ang Status</button>
+      <button class="btn-cancel" onclick="closeModal()">Isara</button>
+      <button class="btn-save"   onclick="saveStatus()">💾 I-save ang Status</button>
     </div>
-  </div>
-</div>
-
-<!-- PRINT AREA -->
-<div id="print-area">
-  <div class="print-doc">
-    <div class="print-header">
-      <h1>REPUBLIKA NG PILIPINAS</h1>
-      <h1>LALAWIGAN NG LAGUNA — BAYAN NG CAVINTI</h1>
-      <h2>SANGGUNIANG BARANGAY NG BULAJO</h2>
-    </div>
-    <div class="print-title">Online Certificate Request Slip</div>
-    <div class="print-body">
-      <table>
-        <tr><td class="lbl">Reference Number:</td><td class="val" id="pr-refnum">—</td></tr>
-        <tr><td class="lbl">Pangalan:</td><td class="val" id="pr-name">—</td></tr>
-        <tr><td class="lbl">Edad / Kasarian:</td><td class="val" id="pr-age-gender">—</td></tr>
-        <tr><td class="lbl">Civil Status:</td><td class="val" id="pr-civil">—</td></tr>
-        <tr><td class="lbl">Address:</td><td class="val" id="pr-address">—</td></tr>
-        <tr><td class="lbl">Contact Number:</td><td class="val" id="pr-contact">—</td></tr>
-        <tr><td class="lbl">Household Number:</td><td class="val" id="pr-household">—</td></tr>
-        <tr><td class="lbl">Certificate na Hinihingi:</td><td class="val" id="pr-cert">—</td></tr>
-        <tr><td class="lbl">Purpose:</td><td class="val" id="pr-purpose">—</td></tr>
-        <tr><td class="lbl">Cedula Number:</td><td class="val" id="pr-cedula">—</td></tr>
-        <tr><td class="lbl">Cedula Date / Place:</td><td class="val" id="pr-cedula-dp">—</td></tr>
-        <tr><td class="lbl">Bayad:</td><td class="val" id="pr-fee">—</td></tr>
-        <tr><td class="lbl">Petsa ng Request:</td><td class="val" id="pr-date">—</td></tr>
-      </table>
-    </div>
-    <div class="print-footer">
-      <div class="print-sig">
-        <div class="line">Pirma ng Residente</div>
-      </div>
-      <div class="print-sig">
-        <div class="line">Nakatanggap — Barangay Staff</div>
-      </div>
-    </div>
-    <div class="print-ref">Printed: <span id="pr-printed">—</span></div>
   </div>
 </div>
 
 <!-- CHANGE PASSWORD MODAL -->
-<div class="modal-overlay" id="chpass-modal" style="display:none">
-  <div class="modal" style="max-width:400px">
+<div class="cpmodal" id="chpass-modal">
+  <div class="cpbox">
     <div class="modal-header">
-      <div>
-        <h2>🔑 Palitan ang Password</h2>
-        <p>Admin Panel Password</p>
-      </div>
+      <div><h2>🔑 Palitan ang Password</h2><p>Admin Panel Password</p></div>
       <button class="modal-close" onclick="closeChangePassword()">✕</button>
     </div>
     <div class="modal-body">
-      <div style="display:flex;flex-direction:column;gap:14px;padding:8px 0">
+      <div style="display:flex;flex-direction:column;gap:12px">
         <div>
-          <label style="font-size:12px;font-weight:600;color:var(--grey);display:block;margin-bottom:6px">KASALUKUYANG PASSWORD</label>
-          <input type="password" id="cp-old" placeholder="Ilagay ang lumang password"
-            style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;box-sizing:border-box">
+          <label style="font-size:11px;font-weight:600;color:var(--grey);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em">Kasalukuyang Password</label>
+          <input type="password" id="cp-old" style="width:100%;padding:10px 14px;border:1.5px solid var(--light);border-radius:8px;font-size:14px;font-family:'Outfit',sans-serif;outline:none">
         </div>
         <div>
-          <label style="font-size:12px;font-weight:600;color:var(--grey);display:block;margin-bottom:6px">BAGONG PASSWORD</label>
-          <input type="password" id="cp-new" placeholder="Ilagay ang bagong password"
-            style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;box-sizing:border-box">
+          <label style="font-size:11px;font-weight:600;color:var(--grey);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em">Bagong Password</label>
+          <input type="password" id="cp-new" style="width:100%;padding:10px 14px;border:1.5px solid var(--light);border-radius:8px;font-size:14px;font-family:'Outfit',sans-serif;outline:none">
         </div>
         <div>
-          <label style="font-size:12px;font-weight:600;color:var(--grey);display:block;margin-bottom:6px">KUMPIRMAHIN ANG BAGONG PASSWORD</label>
-          <input type="password" id="cp-confirm" placeholder="Ulitin ang bagong password"
-            style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;box-sizing:border-box">
+          <label style="font-size:11px;font-weight:600;color:var(--grey);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em">Kumpirmahin</label>
+          <input type="password" id="cp-confirm" style="width:100%;padding:10px 14px;border:1.5px solid var(--light);border-radius:8px;font-size:14px;font-family:'Outfit',sans-serif;outline:none">
         </div>
-        <div id="cp-err" style="display:none;color:#ef4444;font-size:13px;font-weight:500;padding:8px 12px;background:#fef2f2;border-radius:8px"></div>
-        <div id="cp-ok"  style="display:none;color:#10b981;font-size:13px;font-weight:500;padding:8px 12px;background:#f0fdf4;border-radius:8px">✅ Matagumpay na nabago ang password! I-reload ang page para mag-apply.</div>
+        <div id="cp-err" style="display:none;color:#ef4444;font-size:13px;padding:8px 12px;background:#fef2f2;border-radius:8px"></div>
+        <div id="cp-ok"  style="display:none;color:#10b981;font-size:13px;padding:8px 12px;background:#f0fdf4;border-radius:8px">✅ Matagumpay na nabago ang password!</div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="act-btn btn-reject" onclick="closeChangePassword()">Kanselahin</button>
-      <button class="act-btn btn-ready" onclick="doChangePassword()" style="background:var(--navy);color:#fff">💾 I-save ang Password</button>
+      <button class="btn-cancel" onclick="closeChangePassword()">Kanselahin</button>
+      <button class="btn-save"   onclick="doChangePassword()">💾 I-save</button>
     </div>
   </div>
 </div>
 
 <div id="toast"></div>
 
+<!-- PRINT SLIP -->
+<div class="print-body" id="print-area">
+  <h2 style="text-align:center;margin-bottom:4px">BARANGAY BULAJO</h2>
+  <p style="text-align:center;font-size:12px;margin-bottom:16px">Cavinti, Laguna — Online Request Slip</p>
+  <table>
+    <tr><th>Reference No.</th><td id="pr-refnum"></td><th>Certificate</th><td id="pr-cert"></td></tr>
+    <tr><th>Pangalan</th><td id="pr-name"></td><th>Contact</th><td id="pr-contact"></td></tr>
+    <tr><th>Edad / Kasarian</th><td id="pr-age-gender"></td><th>Civil Status</th><td id="pr-civil"></td></tr>
+    <tr><th>Address</th><td colspan="3" id="pr-address"></td></tr>
+    <tr><th>Household No.</th><td id="pr-household"></td><th>Layunin</th><td id="pr-purpose"></td></tr>
+    <tr><th>Cedula No.</th><td id="pr-cedula"></td><th>Petsa/Lugar</th><td id="pr-cedula-dp"></td></tr>
+    <tr><th>Bayad</th><td id="pr-fee"></td><th>Petsa ng Request</th><td id="pr-date"></td></tr>
+    <tr><th>Printed</th><td colspan="3" id="pr-printed"></td></tr>
+  </table>
+</div>
+
 <script>
 // ═══════════ CONFIG ═══════════
-const ADMIN_PASSWORD = 'bulajo2026admin'; // PALITAN ITO!
+const ADMIN_PASSWORD = 'bulajo2026admin';
 const SUPABASE_URL   = 'https://jbpdvzqgermsdglmgggd.supabase.co';
-const SUPABASE_KEY   = 'sb_publishable_TqNr6o6RNWBEUFkjoCognw_Yyq3dcQg';
+const SUPABASE_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImnicGR2enFnZXJtc2RnbG1nZ2dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzNDMwNzcsImV4cCI6MjA2MTkxOTA3N30.q9SbQshIDEz5a1a2uS5N_iNB0Wxp26hsqsB8BvCqSE4';
 
-let allRequests      = [];
-let filteredRequests = [];
-let currentRequest   = null;
-let selectedNewStatus = null;
-
-// AUTO REFRESH every 60 seconds
-let refreshTimer;
-
-// Load saved password from localStorage if available
+let allRequests = [], filteredRequests = [], currentRequest = null, selectedNewStatus = null;
+let refreshTimer, monthlyChart = null;
 let currentPassword = localStorage.getItem('bulajo_admin_pass') || ADMIN_PASSWORD;
+let activeTab = 'requests';
+
+// ═══════════ CLOCK ═══════════
+function tickClock() {
+  const now = new Date();
+  document.getElementById('clock-lbl').textContent =
+    now.toLocaleDateString('fil-PH',{weekday:'short',month:'short',day:'numeric'}) + '  ' +
+    now.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+}
+setInterval(tickClock, 1000); tickClock();
+
+// ═══════════ TABS ═══════════
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  if (tab === 'dashboard') loadDashboard();
+}
+
+function refreshCurrent() {
+  if (activeTab === 'requests') loadRequests();
+  else loadDashboard();
+}
 
 // ═══════════ LOGIN ═══════════
 function doLogin() {
   const pass = document.getElementById('login-pass').value;
-  const err  = document.getElementById('login-err');
   if (pass === currentPassword) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').classList.add('show');
-    err.style.display = 'none';
+    document.getElementById('login-err').style.display = 'none';
     loadRequests();
     refreshTimer = setInterval(loadRequests, 60000);
   } else {
-    err.style.display = 'block';
+    document.getElementById('login-err').style.display = 'block';
     document.getElementById('login-pass').value = '';
   }
 }
@@ -469,47 +595,25 @@ function doLogout() {
 }
 
 // ═══════════ CHANGE PASSWORD ═══════════
-
 function openChangePassword() {
-  document.getElementById('cp-old').value = '';
-  document.getElementById('cp-new').value = '';
-  document.getElementById('cp-confirm').value = '';
+  ['cp-old','cp-new','cp-confirm'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('cp-err').style.display = 'none';
-  document.getElementById('cp-ok').style.display = 'none';
-  document.getElementById('chpass-modal').style.display = 'flex';
+  document.getElementById('cp-ok').style.display  = 'none';
+  document.getElementById('chpass-modal').classList.add('show');
 }
-
 function closeChangePassword() {
-  document.getElementById('chpass-modal').style.display = 'none';
+  document.getElementById('chpass-modal').classList.remove('show');
 }
-
 function doChangePassword() {
-  const oldPass  = document.getElementById('cp-old').value;
-  const newPass  = document.getElementById('cp-new').value;
-  const confirm  = document.getElementById('cp-confirm').value;
-  const errEl    = document.getElementById('cp-err');
-  const okEl     = document.getElementById('cp-ok');
-
-  errEl.style.display = 'none';
-  okEl.style.display  = 'none';
-
-  if (oldPass !== currentPassword) {
-    errEl.textContent = '❌ Mali ang kasalukuyang password.';
-    errEl.style.display = 'block';
-    return;
-  }
-  if (newPass.length < 6) {
-    errEl.textContent = '❌ Ang bagong password ay dapat hindi bababa sa 6 na character.';
-    errEl.style.display = 'block';
-    return;
-  }
-  if (newPass !== confirm) {
-    errEl.textContent = '❌ Hindi tugma ang bagong password at confirmation.';
-    errEl.style.display = 'block';
-    return;
-  }
-
-  // Save to localStorage so it persists across sessions
+  const oldPass = document.getElementById('cp-old').value;
+  const newPass = document.getElementById('cp-new').value;
+  const conf    = document.getElementById('cp-confirm').value;
+  const errEl   = document.getElementById('cp-err');
+  const okEl    = document.getElementById('cp-ok');
+  errEl.style.display = 'none'; okEl.style.display = 'none';
+  if (oldPass !== currentPassword) { errEl.textContent = '❌ Mali ang kasalukuyang password.'; errEl.style.display='block'; return; }
+  if (newPass.length < 6)          { errEl.textContent = '❌ Minimum 6 characters ang password.'; errEl.style.display='block'; return; }
+  if (newPass !== conf)            { errEl.textContent = '❌ Hindi tugma ang bagong password.'; errEl.style.display='block'; return; }
   currentPassword = newPass;
   localStorage.setItem('bulajo_admin_pass', newPass);
   okEl.style.display = 'block';
@@ -517,77 +621,59 @@ function doChangePassword() {
 }
 
 // ═══════════ SUPABASE ═══════════
-async function supaFetch(table, params='') {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?order=requested_at.desc&limit=500${params}`, {
+async function supaGet(table, params = '') {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
-
 async function supaPatch(table, id, data) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
     method: 'PATCH',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation'
-    },
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
     body: JSON.stringify(data)
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
-// ═══════════ LOAD ═══════════
+// ═══════════ REQUESTS TAB ═══════════
 async function loadRequests() {
   try {
-    allRequests = await supaFetch('online_requests');
+    allRequests = await supaGet('online_requests', 'order=requested_at.desc&limit=500');
     filteredRequests = [...allRequests];
-
-    // Populate cert filter
     const certs = [...new Set(allRequests.map(r=>r.cert_type).filter(Boolean))].sort();
     const sel = document.getElementById('filter-cert');
-    sel.innerHTML = '<option value="">Lahat ng Cert</option>' +
-      certs.map(c=>`<option value="${c}">${c}</option>`).join('');
-
-    updateStats();
-    renderTable();
+    sel.innerHTML = '<option value="">Lahat ng Cert</option>' + certs.map(c=>`<option value="${c}">${c}</option>`).join('');
+    updateStats(); renderTable();
     document.getElementById('last-refresh').textContent = 'Updated: ' + new Date().toLocaleTimeString('fil-PH');
-  } catch(e) {
-    showToast('Error sa pag-load: ' + e.message.slice(0,80), 'error');
-  }
+  } catch(e) { showToast('Error: ' + e.message.slice(0,80), 'error'); }
 }
 
 function updateStats() {
-  const count = s => allRequests.filter(r=>r.status===s).length;
+  const c = s => allRequests.filter(r=>r.status===s).length;
   document.getElementById('st-total').textContent      = allRequests.length;
-  document.getElementById('st-pending').textContent    = count('PENDING');
-  document.getElementById('st-processing').textContent = count('PROCESSING');
-  document.getElementById('st-ready').textContent      = count('READY');
-  document.getElementById('st-released').textContent   = count('RELEASED');
+  document.getElementById('st-pending').textContent    = c('PENDING');
+  document.getElementById('st-processing').textContent = c('PROCESSING');
+  document.getElementById('st-ready').textContent      = c('READY');
+  document.getElementById('st-released').textContent   = c('RELEASED');
 }
 
-// ═══════════ FILTER ═══════════
 function filterTable() {
   const q    = document.getElementById('search').value.toLowerCase();
   const stat = document.getElementById('filter-status').value;
   const cert = document.getElementById('filter-cert').value;
   filteredRequests = allRequests.filter(r =>
-    (!q || (r.full_name||'').toLowerCase().includes(q) ||
-           (r.reference_number||'').toLowerCase().includes(q) ||
-           (r.cert_type||'').toLowerCase().includes(q)) &&
-    (!stat || r.status === stat) &&
-    (!cert || r.cert_type === cert)
+    (!q || (r.full_name||'').toLowerCase().includes(q) || (r.reference_number||'').toLowerCase().includes(q) || (r.cert_type||'').toLowerCase().includes(q)) &&
+    (!stat || r.status === stat) && (!cert || r.cert_type === cert)
   );
   renderTable();
 }
 
-// ═══════════ RENDER ═══════════
 const STATUS_BADGES = {
   PENDING:    ['b-pending',    '⏳ Pending'],
-  PROCESSING: ['b-processing', '🔄 Pinoproseso'],
+  PROCESSING: ['b-processing', '🔄 Processing'],
   READY:      ['b-ready',      '✅ Ready'],
   RELEASED:   ['b-released',   '🎉 Naibigay'],
   REJECTED:   ['b-rejected',   '❌ Rejected'],
@@ -596,47 +682,36 @@ const STATUS_BADGES = {
 function renderTable() {
   const tbody = document.getElementById('req-tbody');
   if (!filteredRequests.length) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:60px;color:var(--grey)">Walang records na nahanap</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:50px;color:var(--grey)">Walang records.</td></tr>`;
     return;
   }
-
   tbody.innerHTML = filteredRequests.map(r => {
     const [cls, label] = STATUS_BADGES[r.status] || ['b-pending', r.status];
     const isNew = r.status === 'PENDING' && isRecent(r.requested_at);
     const fee   = parseFloat(r.fee||0) > 0 ? `PHP ${parseFloat(r.fee).toFixed(2)}` : 'LIBRE';
-    return `
-      <tr>
-        <td style="font-family:'DM Mono',monospace;font-size:12px">
-          ${esc(r.reference_number)}
-          ${isNew ? '<span class="new-dot" title="Bagong request"></span>' : ''}
-        </td>
-        <td><strong>${esc(r.full_name)}</strong><br>
-            <span style="font-size:11px;color:var(--grey)">${esc(r.contact_number||'')}</span></td>
-        <td style="font-size:12px">${esc(r.cert_type)}</td>
-        <td style="font-size:12px">${esc(r.contact_number||'—')}</td>
-        <td style="font-size:13px;font-weight:600">${fee}</td>
-        <td><span class="badge ${cls}">${label}</span></td>
-        <td style="font-size:12px;color:var(--grey);font-family:'DM Mono',monospace">${fmtDate(r.requested_at)}</td>
-        <td>
-          <div class="action-btns">
-            <button class="act-btn btn-view" onclick="openDetail(${r.id})">👁 Tingnan</button>
-            <button class="act-btn btn-print" onclick="openDetail(${r.id}, true)">🖨️ Print</button>
-          </div>
-        </td>
-      </tr>`;
+    return `<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${esc(r.reference_number)}${isNew?'<span class="new-dot"></span>':''}</td>
+      <td><strong>${esc(r.full_name)}</strong><br><span style="font-size:11px;color:var(--grey)">${esc(r.contact_number||'')}</span></td>
+      <td style="font-size:12px">${esc(r.cert_type)}</td>
+      <td style="font-size:12px">${esc(r.contact_number||'—')}</td>
+      <td style="font-size:13px;font-weight:600">${fee}</td>
+      <td><span class="badge ${cls}">${label}</span></td>
+      <td style="font-size:12px;color:var(--grey)">${fmtDate(r.requested_at)}</td>
+      <td><div class="action-btns">
+        <button class="act-btn btn-view" onclick="openDetail(${r.id})">👁 Tingnan</button>
+        <button class="act-btn btn-print" onclick="openDetail(${r.id},true)">🖨️ Print</button>
+      </div></td>
+    </tr>`;
   }).join('');
 }
 
-// ═══════════ MODAL ═══════════
 function openDetail(id, autoPrint=false) {
-  currentRequest   = allRequests.find(r => r.id === id);
+  currentRequest = allRequests.find(r=>r.id===id);
   selectedNewStatus = currentRequest.status;
   if (!currentRequest) return;
   const r = currentRequest;
-
   document.getElementById('modal-title').textContent  = r.full_name;
   document.getElementById('modal-refnum').textContent = r.reference_number;
-
   document.getElementById('d-name').textContent       = r.full_name;
   document.getElementById('d-cert').textContent       = r.cert_type;
   document.getElementById('d-age-gender').textContent = `${r.age} taong gulang, ${r.gender}`;
@@ -650,90 +725,247 @@ function openDetail(id, autoPrint=false) {
   document.getElementById('d-fee').textContent        = parseFloat(r.fee||0)>0 ? `PHP ${parseFloat(r.fee).toFixed(2)}` : 'LIBRE';
   document.getElementById('d-date').textContent       = fmtDate(r.requested_at);
   document.getElementById('remarks-input').value      = r.remarks || '';
-
-  // Highlight current status button
-  document.querySelectorAll('.s-btn').forEach(b => b.classList.remove('sel'));
-  const sb = document.getElementById('sb-' + r.status);
+  document.querySelectorAll('.s-btn').forEach(b=>b.classList.remove('sel'));
+  const sb = document.getElementById('sb-'+r.status);
   if (sb) sb.classList.add('sel');
-
   document.getElementById('detail-modal').classList.add('show');
-
   if (autoPrint) setTimeout(printRequest, 300);
 }
 
 function closeModal() {
   document.getElementById('detail-modal').classList.remove('show');
-  currentRequest    = null;
-  selectedNewStatus = null;
+  currentRequest = null; selectedNewStatus = null;
 }
 
-function selectStatus(status) {
-  selectedNewStatus = status;
-  document.querySelectorAll('.s-btn').forEach(b => b.classList.remove('sel'));
-  document.getElementById('sb-' + status).classList.add('sel');
+function selectStatus(s) {
+  selectedNewStatus = s;
+  document.querySelectorAll('.s-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('sb-'+s).classList.add('sel');
 }
 
 async function saveStatus() {
   if (!currentRequest || !selectedNewStatus) return;
   const remarks = document.getElementById('remarks-input').value.trim();
   try {
-    await supaPatch('online_requests', currentRequest.id, {
-      status: selectedNewStatus,
-      remarks: remarks,
-      updated_at: new Date().toISOString()
-    });
+    await supaPatch('online_requests', currentRequest.id, { status: selectedNewStatus, remarks, updated_at: new Date().toISOString() });
     showToast('✅ Status updated!', 'success');
-    closeModal();
-    loadRequests();
-  } catch(e) {
-    showToast('Error: ' + e.message.slice(0,80), 'error');
-  }
+    closeModal(); loadRequests();
+  } catch(e) { showToast('Error: '+e.message.slice(0,80),'error'); }
 }
 
-// ═══════════ PRINT ═══════════
 function printRequest() {
-  const r = currentRequest;
-  if (!r) return;
-
-  document.getElementById('pr-refnum').textContent     = r.reference_number;
-  document.getElementById('pr-name').textContent       = r.full_name;
-  document.getElementById('pr-age-gender').textContent = `${r.age} taong gulang, ${r.gender}`;
-  document.getElementById('pr-civil').textContent      = r.civil_status;
-  document.getElementById('pr-address').textContent    = r.address;
-  document.getElementById('pr-contact').textContent    = r.contact_number;
-  document.getElementById('pr-household').textContent  = r.household_number || '—';
-  document.getElementById('pr-cert').textContent       = r.cert_type;
-  document.getElementById('pr-purpose').textContent    = r.purpose;
-  document.getElementById('pr-cedula').textContent     = r.cedula_number || '—';
-  document.getElementById('pr-cedula-dp').textContent  = [r.cedula_date, r.cedula_place].filter(Boolean).join(' / ') || '—';
-  document.getElementById('pr-fee').textContent        = parseFloat(r.fee||0)>0 ? `PHP ${parseFloat(r.fee).toFixed(2)}` : 'LIBRE';
-  document.getElementById('pr-date').textContent       = fmtDate(r.requested_at);
-  document.getElementById('pr-printed').textContent    = new Date().toLocaleString('fil-PH');
-
+  const r = currentRequest; if (!r) return;
+  document.getElementById('pr-refnum').textContent    = r.reference_number;
+  document.getElementById('pr-name').textContent      = r.full_name;
+  document.getElementById('pr-age-gender').textContent= `${r.age}, ${r.gender}`;
+  document.getElementById('pr-civil').textContent     = r.civil_status;
+  document.getElementById('pr-address').textContent   = r.address;
+  document.getElementById('pr-contact').textContent   = r.contact_number;
+  document.getElementById('pr-household').textContent = r.household_number||'—';
+  document.getElementById('pr-cert').textContent      = r.cert_type;
+  document.getElementById('pr-purpose').textContent   = r.purpose;
+  document.getElementById('pr-cedula').textContent    = r.cedula_number||'—';
+  document.getElementById('pr-cedula-dp').textContent = [r.cedula_date,r.cedula_place].filter(Boolean).join(' / ')||'—';
+  document.getElementById('pr-fee').textContent       = parseFloat(r.fee||0)>0?`PHP ${parseFloat(r.fee).toFixed(2)}`:'LIBRE';
+  document.getElementById('pr-date').textContent      = fmtDate(r.requested_at);
+  document.getElementById('pr-printed').textContent   = new Date().toLocaleString('fil-PH');
   window.print();
 }
 
+// ═══════════ DASHBOARD TAB ═══════════
+let dashLoaded = false;
+async function loadDashboard() {
+  try {
+    const reqs = allRequests.length ? allRequests : await supaGet('online_requests','order=requested_at.desc&limit=5000');
+    renderDashStats(reqs);
+    renderRecentTable(reqs);
+    renderMonthlyChart(reqs);
+    renderCertBars(reqs);
+  } catch(e) { console.error(e); }
+  try {
+    const residents = await supaGet('residents','select=id,household_number&limit=5000');
+    const hh = new Set(residents.map(r=>(r.household_number||'').trim()).filter(Boolean));
+    document.getElementById('d-households').textContent = hh.size;
+    document.getElementById('d-residents').textContent  = residents.length;
+  } catch(e) { document.getElementById('d-households').textContent='?'; document.getElementById('d-residents').textContent='?'; }
+  try {
+    const officials = await supaGet('officials','order=position.asc');
+    renderOfficials(officials);
+  } catch(e) { document.getElementById('officials-list').innerHTML='<div class="empty-state">Hindi ma-load ang mga opisyal.</div>'; }
+  loadAnn();
+  dashLoaded = true;
+}
+
+function renderDashStats(reqs) {
+  const c = s => reqs.filter(r=>(r.status||'PENDING')===s).length;
+  document.getElementById('d-total').textContent      = reqs.length;
+  document.getElementById('d-pending').textContent    = c('PENDING');
+  document.getElementById('d-processing').textContent = c('PROCESSING');
+  document.getElementById('d-ready').textContent      = c('READY');
+  document.getElementById('d-released').textContent   = c('RELEASED');
+  document.getElementById('d-rejected').textContent   = c('REJECTED');
+}
+
+function renderRecentTable(reqs) {
+  const tbody = document.getElementById('recent-tbody');
+  const rows  = reqs.slice(0,10);
+  if (!rows.length) { tbody.innerHTML='<tr><td colspan="5" class="empty-state">Wala pang data.</td></tr>'; return; }
+  tbody.innerHTML = rows.map(r => {
+    const status = (r.status||'PENDING').toUpperCase();
+    const cert   = (r.cert_type||'').replace('CERTIFICATE OF ','CERT. OF ').replace('BARANGAY ','BRY. ');
+    return `<tr>
+      <td style="font-family:monospace;font-size:11px;color:var(--grey)">${r.reference_number||''}</td>
+      <td style="font-weight:600">${r.full_name||''}</td>
+      <td style="font-size:12px">${cert}</td>
+      <td><span class="dbadge ${status}">${status}</span></td>
+      <td style="color:var(--grey);font-size:11px">${(r.requested_at||'').slice(0,10)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderMonthlyChart(reqs) {
+  const months = {};
+  const now = new Date();
+  for (let i=5; i>=0; i--) {
+    const d   = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    months[key] = { label: d.toLocaleDateString('en-PH',{month:'short',year:'2-digit'}), count:0 };
+  }
+  reqs.forEach(r => { const k=(r.requested_at||'').slice(0,7); if(months[k]) months[k].count++; });
+  if (monthlyChart) monthlyChart.destroy();
+  const ctx = document.getElementById('monthly-chart').getContext('2d');
+  monthlyChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: Object.values(months).map(m=>m.label),
+      datasets:[{ label:'Requests', data:Object.values(months).map(m=>m.count),
+        backgroundColor:'rgba(15,31,61,.15)', borderColor:'rgba(15,31,61,.8)',
+        borderWidth:2, borderRadius:6, hoverBackgroundColor:'rgba(201,168,76,.3)' }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{ y:{beginAtZero:true,ticks:{stepSize:1,font:{size:11}},grid:{color:'rgba(0,0,0,.05)'}},
+               x:{ticks:{font:{size:11}},grid:{display:false}} } }
+  });
+}
+
+function renderCertBars(reqs) {
+  const counts = {};
+  reqs.forEach(r => { const t=r.cert_type||'Unknown'; counts[t]=(counts[t]||0)+1; });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const max    = sorted[0]?.[1]||1;
+  const el     = document.getElementById('cert-bars');
+  if (!sorted.length) { el.innerHTML='<div class="empty-state">Walang data pa.</div>'; return; }
+  const SHORT = {
+    'BARANGAY CLEARANCE':'Bry. Clearance',
+    'BARANGAY BUSINESS CLEARANCE':'Business Clearance',
+    'CERTIFICATE OF RESIDENCY':'Residency',
+    'CERTIFICATE OF INDIGENCY':'Indigency',
+    'FIRST TIME JOB SEEKER (FTJS)':'FTJS',
+  };
+  el.innerHTML = sorted.map(([type,count]) => `
+    <div class="cert-bar-item">
+      <div class="cert-bar-lbl"><span>${SHORT[type]||type}</span><span>${count}</span></div>
+      <div class="cert-bar-track"><div class="cert-bar-fill" style="width:${Math.round(count/max*100)}%"></div></div>
+    </div>`).join('');
+}
+
+function renderOfficials(officials) {
+  const el = document.getElementById('officials-list');
+  if (!officials?.length) { el.innerHTML='<div class="empty-state">Walang opisyal.</div>'; return; }
+  el.innerHTML = officials.slice(0,12).map(o => {
+    const initials = (o.name||o.full_name||'?').split(' ').map(w=>w[0]).slice(0,2).join('');
+    return `<div class="official-item">
+      <div class="official-avatar">${initials}</div>
+      <div>
+        <div class="official-name">${o.name||o.full_name||'—'}</div>
+        <div class="official-pos">${o.position||o.pos||'—'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════ ANNOUNCEMENTS ═══════════
+function loadAnn() {
+  renderAnn(JSON.parse(localStorage.getItem('bulajo_ann')||'[]'));
+}
+function addAnn() {
+  const input = document.getElementById('ann-input');
+  const text  = input.value.trim(); if (!text) return;
+  const anns  = JSON.parse(localStorage.getItem('bulajo_ann')||'[]');
+  anns.unshift({ text, date: new Date().toLocaleDateString('fil-PH',{year:'numeric',month:'long',day:'numeric'}) });
+  localStorage.setItem('bulajo_ann', JSON.stringify(anns));
+  renderAnn(anns); input.value='';
+}
+function delAnn(i) {
+  if (!confirm('I-delete ang anunsyo?')) return;
+  const anns = JSON.parse(localStorage.getItem('bulajo_ann')||'[]');
+  anns.splice(i,1);
+  localStorage.setItem('bulajo_ann', JSON.stringify(anns));
+  renderAnn(anns);
+}
+function renderAnn(anns) {
+  const el = document.getElementById('ann-list');
+  if (!anns.length) { el.innerHTML='<div class="empty-state">Walang anunsyo pa.</div>'; return; }
+  el.innerHTML = anns.map((a,i)=>`
+    <div class="ann-item">
+      <div><div class="ann-text">${a.text}</div><div class="ann-date">${a.date}</div></div>
+      <button class="ann-del" onclick="delAnn(${i})">×</button>
+    </div>`).join('');
+}
+
+// ═══════════ EXPORT CSV ═══════════
+async function exportReport() {
+  const btn = document.querySelector('.export-btn');
+  btn.textContent='⏳ Loading...'; btn.disabled=true;
+  try {
+    const reqs = await supaGet('online_requests','order=requested_at.desc&limit=5000');
+    const res  = await supaGet('residents','order=household_number.asc&limit=5000');
+    const now  = new Date();
+    const sc   = {PENDING:0,PROCESSING:0,READY:0,RELEASED:0,REJECTED:0};
+    reqs.forEach(r=>{ const s=(r.status||'PENDING').toUpperCase(); if(sc[s]!==undefined) sc[s]++; });
+    const hh   = new Set(res.map(r=>(r.household_number||'').trim()).filter(Boolean));
+    const cc   = {}; reqs.forEach(r=>{ const t=r.cert_type||'Unknown'; cc[t]=(cc[t]||0)+1; });
+    const rows = [];
+    rows.push(['BARANGAY BULAJO — DASHBOARD REPORT']);
+    rows.push([`Generated: ${now.toLocaleDateString('fil-PH',{year:'numeric',month:'long',day:'numeric'})}`]);
+    rows.push([]);
+    rows.push(['=== SUMMARY ===']);
+    rows.push(['Metric','Count']);
+    [['Total Requests',reqs.length],['Pending',sc.PENDING],['Processing',sc.PROCESSING],
+     ['Ready',sc.READY],['Released',sc.RELEASED],['Rejected',sc.REJECTED],
+     ['Total Households',hh.size],['Total Residents',res.length]].forEach(r=>rows.push(r));
+    rows.push([]);
+    rows.push(['=== URI NG CERTIFICATE ===']);
+    rows.push(['Certificate Type','Count']);
+    Object.entries(cc).sort((a,b)=>b[1]-a[1]).forEach(([t,c])=>rows.push([t,c]));
+    rows.push([]);
+    rows.push(['=== LAHAT NG ONLINE REQUESTS ===']);
+    rows.push(['Reference No.','Cert Type','Full Name','Age','Gender','Civil Status','Address','Contact','Purpose','Fee','Status','Requested At']);
+    reqs.forEach(r=>rows.push([r.reference_number||'',r.cert_type||'',r.full_name||'',r.age||'',r.gender||'',r.civil_status||'',r.address||'',r.contact_number||'',r.purpose||'',r.fee||0,r.status||'',(r.requested_at||'').slice(0,16).replace('T',' ')]));
+    rows.push([]);
+    rows.push(['=== LAHAT NG RESIDENTS ===']);
+    rows.push(['Household No.','Full Name','Age','Gender','Civil Status','Address']);
+    res.forEach(r=>rows.push([r.household_number||'',r.full_name||'',r.age||'',r.gender||'',r.civil_status||'',r.address||'']));
+    const csv  = rows.map(r=>r.map(c=>{const s=String(c).replace(/"/g,'""');return s.includes(',')||s.includes('"')?`"${s}"`:s;}).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href=url; a.download=`BarangayBulajo_${now.toISOString().slice(0,10)}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) { alert('Error: '+e.message); }
+  finally { btn.textContent='📥 I-export CSV'; btn.disabled=false; }
+}
+
 // ═══════════ UTILS ═══════════
-function isRecent(dateStr) {
-  return (Date.now() - new Date(dateStr).getTime()) < 24*60*60*1000;
-}
-
-function esc(str) {
-  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function fmtDate(str) {
-  if (!str) return '—';
-  return new Date(str).toLocaleDateString('fil-PH',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-}
-
+function isRecent(d) { return (Date.now()-new Date(d).getTime()) < 86400000; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtDate(s) { if(!s) return '—'; return new Date(s).toLocaleDateString('fil-PH',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
 let toastTimer;
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className   = 'show' + (type ? ' '+type : '');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>t.classList.remove('show'), 3500);
+function showToast(msg,type='') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show'+(type?' '+type:'');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
 }
 </script>
 </body>
