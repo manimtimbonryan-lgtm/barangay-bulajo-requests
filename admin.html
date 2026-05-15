@@ -2,7 +2,7 @@
 <html lang="fil">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Barangay Bulajo — Admin Panel</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -204,6 +204,41 @@ td{padding:13px 14px;vertical-align:middle;}
   .dash-grid2,.dash-grid3{grid-template-columns:1fr;}
   .stats-grid{grid-template-columns:repeat(2,1fr);}
   .content,.dash-main{padding:16px;}
+}
+
+/* ══ MOBILE ══ */
+@media(max-width:600px){
+  .topbar{padding:0 12px!important;height:54px!important;}
+  .topbar-title{font-size:14px!important;}
+  .topbar-right{gap:6px!important;}
+  .topbar-btn{padding:5px 8px!important;font-size:11px!important;}
+  #clock-lbl{display:none!important;}
+  .stats-bar{flex-wrap:wrap!important;}
+  .stat-item{flex:none!important;width:50%!important;padding:10px!important;}
+  .stat-num{font-size:22px!important;}
+  .content{padding:12px!important;}
+  .toolbar{flex-direction:column!important;}
+  .search-input,.filter-select{width:100%!important;font-size:16px!important;}
+  .tab-btn{padding:10px 12px!important;font-size:12px!important;}
+  .tab-bar{padding:0 10px!important;}
+  /* Table → card view on mobile */
+  .data-tbl thead{display:none!important;}
+  .data-tbl tr{display:block!important;margin-bottom:10px!important;border:1px solid var(--border)!important;border-radius:10px!important;padding:12px!important;background:#fff!important;}
+  .data-tbl td{display:flex!important;justify-content:space-between!important;border-bottom:1px solid var(--border)!important;padding:6px 0!important;font-size:13px!important;}
+  .data-tbl td:last-child{border-bottom:none!important;}
+  .data-tbl td::before{content:attr(data-label);font-weight:700;color:var(--grey);font-size:11px;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;margin-right:8px;}
+  .recent-tbl thead{display:none!important;}
+  .recent-tbl tr{display:block!important;margin-bottom:8px!important;border:1px solid var(--border)!important;border-radius:8px!important;padding:10px!important;}
+  .recent-tbl td{display:block!important;border-bottom:none!important;padding:3px 0!important;}
+  .modal{max-width:100%!important;border-radius:16px 16px 0 0!important;}
+  .modal-overlay{align-items:flex-end!important;padding:0!important;}
+  .dash-grid2,.dash-grid3{grid-template-columns:1fr!important;}
+  .stats-grid{grid-template-columns:repeat(2,1fr)!important;}
+  .panel-body{padding:12px!important;}
+  input,select,textarea{font-size:16px!important;}
+  .ann-form{flex-direction:column!important;}
+  .ann-input,.ann-add-btn{width:100%!important;}
+  .export-btn{font-size:11px!important;padding:6px 10px!important;}
 }
 </style>
 </head>
@@ -690,14 +725,14 @@ function renderTable() {
     const isNew = r.status === 'PENDING' && isRecent(r.requested_at);
     const fee   = parseFloat(r.fee||0) > 0 ? `PHP ${parseFloat(r.fee).toFixed(2)}` : 'LIBRE';
     return `<tr>
-      <td style="font-family:'DM Mono',monospace;font-size:12px">${esc(r.reference_number)}${isNew?'<span class="new-dot"></span>':''}</td>
-      <td><strong>${esc(r.full_name)}</strong><br><span style="font-size:11px;color:var(--grey)">${esc(r.contact_number||'')}</span></td>
-      <td style="font-size:12px">${esc(r.cert_type)}</td>
-      <td style="font-size:12px">${esc(r.contact_number||'—')}</td>
-      <td style="font-size:13px;font-weight:600">${fee}</td>
-      <td><span class="badge ${cls}">${label}</span></td>
-      <td style="font-size:12px;color:var(--grey)">${fmtDate(r.requested_at)}</td>
-      <td><div class="action-btns">
+      <td data-label="Ref. No." style="font-family:'DM Mono',monospace;font-size:12px">${esc(r.reference_number)}${isNew?'<span class="new-dot"></span>':''}</td>
+      <td data-label="Pangalan"><strong>${esc(r.full_name)}</strong></td>
+      <td data-label="Certificate" style="font-size:12px">${esc(r.cert_type)}</td>
+      <td data-label="Contact" style="font-size:12px">${esc(r.contact_number||'—')}</td>
+      <td data-label="Bayad" style="font-size:13px;font-weight:600">${fee}</td>
+      <td data-label="Status"><span class="badge ${cls}">${label}</span></td>
+      <td data-label="Petsa" style="font-size:12px;color:var(--grey)">${fmtDate(r.requested_at)}</td>
+      <td data-label="Action"><div class="action-btns">
         <button class="act-btn btn-view" onclick="openDetail(${r.id})">👁 Tingnan</button>
         <button class="act-btn btn-print" onclick="openDetail(${r.id},true)">🖨️ Print</button>
       </div></td>

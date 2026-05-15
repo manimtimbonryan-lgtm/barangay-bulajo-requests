@@ -2,7 +2,7 @@
 <html lang="fil">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Barangay Bulajo — Management System</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -169,11 +169,52 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 #toast.err{background:#991b1b;}
 
 @media(max-width:768px){
-  .sidebar{display:none;}
-  .main-wrap{margin-left:0;}
-  .grid2,.grid3{grid-template-columns:1fr;}
-  .stats-grid{grid-template-columns:repeat(2,1fr);}
-  .form-grid{grid-template-columns:1fr;}
+
+  /* Mobile nav */
+  .sidebar{display:none!important;}
+  .main-wrap{margin-left:0!important;}
+  .grid2,.grid3{grid-template-columns:1fr!important;}
+  .stats-grid{grid-template-columns:repeat(2,1fr)!important;}
+  .form-grid{grid-template-columns:1fr!important;}
+  .mobile-nav{display:flex!important;}
+  .topbar{padding:0 14px!important;}
+  .page-title{font-size:15px!important;}
+  .content{padding:14px!important;}
+  .stat-card{padding:14px!important;}
+  .stat-num{font-size:24px!important;}
+  .toolbar{flex-direction:column!important;}
+  .search-box,.sel-box{width:100%!important;}
+  input,select,textarea{font-size:16px!important;}
+  .modal{max-width:100%!important;border-radius:16px 16px 0 0!important;}
+  .modal-overlay{align-items:flex-end!important;padding:0!important;}
+  .officials-grid{grid-template-columns:repeat(2,1fr)!important;}
+  .tb-btn{font-size:11px!important;padding:6px 10px!important;}
+}
+
+/* ══ MOBILE BOTTOM NAV ══ */
+.mobile-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--navy);
+  border-top:1px solid rgba(255,255,255,.1);
+  z-index:100;
+  padding:4px 0 env(safe-area-inset-bottom);
+}
+.mob-nav-items{
+  display:flex;justify-content:space-around;align-items:center;
+}
+.mob-nav-btn{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:8px 6px;cursor:pointer;border:none;background:none;
+  color:rgba(255,255,255,.45);font-family:'Outfit',sans-serif;
+  font-size:10px;font-weight:500;flex:1;transition:color .2s;
+}
+.mob-nav-btn.active{color:var(--gold2);}
+.mob-nav-icon{font-size:20px;line-height:1;}
+.mob-nav-lbl{font-size:9px;}
+/* Add padding to content for bottom nav on mobile */
+@media(max-width:600px){
+  .main-wrap{padding-bottom:65px!important;}
 }
 </style>
 </head>
@@ -202,6 +243,31 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 <div id="app">
 
   <!-- SIDEBAR -->
+  
+  <!-- MOBILE BOTTOM NAV -->
+  <div class="mobile-nav" id="mobile-nav">
+    <div class="mob-nav-items">
+      <button class="mob-nav-btn active" id="mnav-dashboard" onclick="goTo('dashboard')">
+        <span class="mob-nav-icon">📊</span><span class="mob-nav-lbl">Dashboard</span>
+      </button>
+      <button class="mob-nav-btn" id="mnav-residents" onclick="goTo('residents')">
+        <span class="mob-nav-icon">👥</span><span class="mob-nav-lbl">Residents</span>
+      </button>
+      <button class="mob-nav-btn" id="mnav-online" onclick="goTo('online')">
+        <span class="mob-nav-icon">🌐</span><span class="mob-nav-lbl">Online</span>
+      </button>
+      <button class="mob-nav-btn" id="mnav-certificates" onclick="goTo('certificates')">
+        <span class="mob-nav-icon">📄</span><span class="mob-nav-lbl">Certs</span>
+      </button>
+      <button class="mob-nav-btn" id="mnav-officials" onclick="goTo('officials')">
+        <span class="mob-nav-icon">🏛️</span><span class="mob-nav-lbl">Officials</span>
+      </button>
+      <button class="mob-nav-btn" id="mnav-reports" onclick="goTo('reports')">
+        <span class="mob-nav-icon">📈</span><span class="mob-nav-lbl">Reports</span>
+      </button>
+    </div>
+  </div>
+
   <div class="sidebar">
     <div class="sb-brand">
       <div class="sb-seal">🏛️</div>
@@ -405,6 +471,8 @@ function goTo(page){
   currentPage = page;
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('nav-'+page)?.classList.add('active');
+  document.querySelectorAll('.mob-nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mnav-'+page)?.classList.add('active');
   const m = PAGE_META[page];
   document.getElementById('page-title').textContent = m.title;
   document.getElementById('page-sub').textContent   = m.sub;
